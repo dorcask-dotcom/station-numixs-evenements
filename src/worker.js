@@ -8,6 +8,7 @@
  * Aucune adresse e-mail n'est conservée : seules des empreintes (SHA-256) servent à retrouver un profil.
  */
 
+import { adminRoute } from './admin.js';
 const EB = 'https://www.eventbriteapi.com/v3';
 const TZ = 'Europe/Paris';
 const PUSH_HOSTS = ['googleapis.com', 'mozilla.com', 'mozaws.net', 'apple.com', 'windows.com'];
@@ -18,6 +19,12 @@ let ready = false;
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
+    if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/api/admin/')) {
+      try {
+        await init(env);
+        return await adminRoute(req, env, url, { json, fail, body, cleanEmail, getEvents, findTickets, notify, drain });
+      } catch (e) { console.error('Admin', e && e.message); return json({ error: 'Une erreur est survenue.' }, 500); }
+    }
     if (url.pathname !== '/events.json' && !url.pathname.startsWith('/api/')) return env.ASSETS.fetch(req);
     try {
       await init(env);
