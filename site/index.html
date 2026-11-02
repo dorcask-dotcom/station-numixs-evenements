@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Agenda des événements de la Station numixs, la maison du numérique de Sarcelles.">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Station numixs Événements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Extra+Condensed:wght@500;600;700&family=Carlito:wght@400;700&display=swap">
+<style>
+/* Charte numixs 2023 : vert #D6D837, noir 90 % #3E3E3D, bleu Roissy Pays de France #0064EC. Titres en police condensée type Agency FB, texte type Calibri. Les « pixels » carrés décorent l'en-tête. */
+:root {
+  --green: #D6D837;
+  --green-50: #EAEB9B;
+  --green-25: #F4F5CB;
+  --on-green: #2B2B2A;
+  --blue: #0064EC;
+  --bg: #FFFFFF;
+  --surface: #F5F5F2;
+  --fg: #3E3E3D;
+  --muted: #666664;
+  --line: #DCDCD7;
+  --board: #3E3E3D;
+  --board-fg: #FFFFFF;
+  --board-muted: #C4C4BF;
+  --link: #0064EC;
+  --warn: #B3361F;
+  --font-display: "Agency FB", "Saira Extra Condensed", "Arial Narrow", sans-serif;
+  --font-body: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #262625; --surface: #313130; --fg: #F2F2EE; --muted: #ABABA6; --line: #464644;
+    --board: #1A1A19; --link: #7FB0FF; --warn: #FF8A70; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #262625; --surface: #313130; --fg: #F2F2EE; --muted: #ABABA6; --line: #464644;
+  --board: #1A1A19; --link: #7FB0FF; --warn: #FF8A70; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.45; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: var(--link); }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :focus-visible { outline-color: #7FB0FF; } }
+:root[data-theme="dark"] :focus-visible { outline-color: #7FB0FF; }
+.app { max-width: 480px; margin-inline: auto; min-height: 100vh; padding-bottom: 96px; }
+
+/* En-tête de marque */
+.brandband { position: relative; background: var(--green); color: var(--on-green); padding: 24px 16px 18px; overflow: hidden; }
+.px { position: absolute; width: 22px; height: 22px; }
+.px.a { top: 0; right: 22px; background: #fff; }
+.px.b { top: 22px; right: 0; background: var(--green-50); }
+.px.c { top: 0; right: 0; background: var(--green-25); }
+.px.d { bottom: 0; left: 0; width: 14px; height: 14px; background: #fff; }
+.brandband h1 { margin: 0; font-family: var(--font-display); font-size: 40px; line-height: 1; font-weight: 500; padding-right: 64px; }
+.brandband h1 b { font-weight: 700; }
+.tagline { margin: 4px 0 14px; font-family: var(--font-display); letter-spacing: .16em; font-size: 15px; font-weight: 500; }
+.sync { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; background: var(--green-25); padding: 3px 10px 3px 8px; }
+.sync i { width: 9px; height: 9px; background: var(--on-green); display: inline-block; }
+.next { background: var(--board); color: var(--board-fg); padding: 14px 16px 16px; display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; align-items: baseline; }
+.next small { grid-column: 1 / -1; font-family: var(--font-display); letter-spacing: .14em; text-transform: uppercase; color: var(--green); font-size: 15px; font-weight: 600; }
+.next .t { font-family: var(--font-display); font-size: 36px; font-weight: 700; color: var(--green); font-variant-numeric: tabular-nums; line-height: 1; }
+.next .n { font-family: var(--font-display); font-size: 24px; font-weight: 600; line-height: 1.05; min-width: 0; }
+.next .w { grid-column: 2; color: var(--board-muted); font-size: 14px; }
+
+main { padding: 6px 16px 0; }
+h2.title { font-family: var(--font-display); font-size: 38px; font-weight: 700; margin: 18px 0 2px; line-height: 1.02; text-wrap: balance; }
+.lead { color: var(--muted); margin: 0 0 14px; }
+
+/* Filtres */
+.search { width: 100%; background: var(--surface); border: 1px solid var(--line); padding: 11px 12px; }
+.chips { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0 4px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; border: 1px solid var(--fg); background: transparent; padding: 6px 14px; font-weight: 700; min-height: 38px; }
+.chip[aria-pressed="true"] { background: var(--green); color: var(--on-green); border-color: var(--green); }
+
+/* Lignes d'agenda */
+.day { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); text-transform: uppercase; letter-spacing: .1em; font-weight: 700; font-size: 18px; margin: 24px 0 2px; padding-bottom: 6px; border-bottom: 2px solid var(--fg); }
+.day::before { content: ""; width: 12px; height: 12px; background: var(--green); flex: none; }
+.row { display: grid; grid-template-columns: 62px 1fr; gap: 12px; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 14px 0; align-items: start; }
+.row .time { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-height: 1; font-variant-numeric: tabular-nums; padding-top: 1px; }
+.row .body { min-width: 0; }
+.row .name { font-family: var(--font-display); font-weight: 700; font-size: 25px; line-height: 1.05; margin: 0 0 6px; text-wrap: balance; }
+.meta { display: flex; flex-wrap: wrap; gap: 4px 10px; color: var(--muted); font-size: 14px; align-items: center; }
+.tag { background: var(--green-25); color: var(--on-green); padding: 0 7px; font-size: 13px; font-weight: 700; }
+.status { font-weight: 700; font-size: 13px; padding: 0 7px; }
+.status.ok { background: var(--fg); color: var(--bg); }
+.empty { color: var(--muted); padding: 28px 0; text-align: center; }
+
+/* Billets */
+.code { font-family: var(--font-display); font-weight: 700; letter-spacing: .12em; font-size: 22px; }
+
+/* Réseau */
+
+/* Notifications */
+
+/* Boutons */
+.btn { display: inline-flex; justify-content: center; align-items: center; gap: 8px; min-height: 48px; padding: 0 18px; border: 1px solid var(--green); font-weight: 700; background: var(--green); color: var(--on-green); }
+.btn.block { width: 100%; }
+.btn.ghost { background: transparent; border-color: var(--fg); color: var(--fg); }
+.btn.small { min-height: 38px; padding: 0 12px; font-size: 15px; }
+
+/* Feuille de détail */
+.backdrop { position: fixed; inset: 0; background: rgba(26,26,25,.65); z-index: 30; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: var(--bg); width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; border-top: 6px solid var(--green); padding: 16px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
+.sheet .handle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.sheet h3 { font-family: var(--font-display); font-size: 36px; line-height: 1.02; margin: 8px 0 10px; font-weight: 700; text-wrap: balance; }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 14px 0; padding: 12px 0; border-block: 1px solid var(--line); }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; font-weight: 700; }
+
+.foot { margin: 32px 16px 0; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; display: grid; gap: 4px; }
+
+/* Barre d'onglets */
+@media (prefers-reduced-motion: no-preference) {
+  .sheet { animation: up .22s ease-out; }
+  @keyframes up { from { transform: translateY(24px); opacity: .6; } to { transform: none; opacity: 1; } }
+}
+
+.app { padding-bottom: 32px; }
+.btn { text-decoration: none; }
+a.btn { display: flex; }
+.btn.block + .btn.block { margin-top: 10px; }
+.note { color: var(--muted); font-size: 14px; }
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brandband">
+      <span class="px a"></span><span class="px b"></span><span class="px c"></span><span class="px d"></span>
+      <h1>Station <b>numixs</b></h1>
+      <p class="tagline">La maison du numérique</p>
+      <span class="sync"><i></i><span id="syncLabel">Programme Eventbrite</span></span>
+    </div>
+    <div class="next" id="next" hidden></div>
+  </header>
+  <main id="view"><p class="empty">Chargement du programme…</p></main>
+  <footer class="foot">
+    <span>Station numixs · 6 rue Jacques-Henri Labourdette, 95200 Sarcelles · Roissy Pays de France agglomération.</span>
+    <a href="https://www.eventbrite.fr/o/station-numixs-120885195167" target="_blank" rel="noopener">Tous nos événements sur Eventbrite</a>
+  </footer>
+</div>
+<div class="backdrop" id="sheet" hidden><div class="sheet" role="dialog" aria-modal="true" id="sheetBody"></div></div>
+
+<script>
+(function () {
+  var DAY = 86400000, TZ = 'Europe/Paris';
+  var EVENTS = [], UP = [], THEMES = ['Tous'], filter = 'Tous', q = '', updatedAt = null, failed = false;
+  var fmtDay = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: TZ });
+  var fmtLong = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: TZ });
+  var fmtShort = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', timeZone: TZ });
+  var fmtTime = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: TZ });
+  var fmtYMD = new Intl.DateTimeFormat('en-CA', { timeZone: TZ });
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  function hhmm(d) { return fmtTime.format(d); }
+  function parisDay(d) { var p = fmtYMD.format(d).split('-'); return Date.UTC(+p[0], +p[1] - 1, +p[2]) / DAY; }
+  function ev(id) { return EVENTS.filter(function (e) { return e.id === id; })[0]; }
+  function safeUrl(u) { return /^https:\/\//i.test(u || '') ? u : 'https://www.eventbrite.fr/o/station-numixs-120885195167'; }
+
+  function setData(j) {
+    updatedAt = j.updatedAt ? new Date(j.updatedAt) : null;
+    EVENTS = (j.events || []).map(function (e) {
+      var t = e.title || '';
+      return { id: String(e.id), title: t, theme: /petit/i.test(t) ? "Petit déj'" : /afterwork/i.test(t) ? 'Afterwork' : /atelier/i.test(t) ? 'Atelier' : /formation/i.test(t) ? 'Formation' : 'Événement',
+        date: new Date(e.start), end: new Date(e.end), place: e.venue ? [e.venue.name, e.venue.address].filter(Boolean).join(', ') : 'Station numixs, Sarcelles',
+        price: e.isFree === true ? 'Gratuit' : null, desc: e.description || '', url: safeUrl(e.url) };
+    }).filter(function (e) { return !isNaN(e.date) && !isNaN(e.end); });
+    UP = EVENTS.filter(function (e) { return e.end.getTime() >= Date.now(); }).sort(function (a, b) { return a.date - b.date; });
+    THEMES = ['Tous']; UP.forEach(function (e) { if (THEMES.indexOf(e.theme) < 0) THEMES.push(e.theme); });
+    if (THEMES.indexOf(filter) < 0) filter = 'Tous';
+    $('syncLabel').textContent = updatedAt ? 'Programme mis à jour le ' + fmtShort.format(updatedAt) : 'Programme Eventbrite';
+    render();
+  }
+
+  function renderNext() {
+    var n = $('next'), e = UP[0];
+    if (!e) { n.hidden = true; return; }
+    var days = parisDay(e.date) - parisDay(new Date());
+    var when = days <= 0 ? "aujourd'hui" : days === 1 ? 'demain' : 'dans ' + days + ' jours';
+    n.hidden = false;
+    n.innerHTML = '<small>Prochain départ</small><span class="t">' + hhmm(e.date) + '</span><span class="n">' + esc(e.title) + '</span><span class="w">' + esc(cap(fmtDay.format(e.date))) + ' · ' + when + '</span>';
+  }
+
+  function render() {
+    renderNext();
+    var h = '<h2 class="title">Agenda</h2>';
+    if (failed) return $('view').innerHTML = h + '<p class="empty">Le programme ne peut pas être chargé pour le moment.<br><a href="https://www.eventbrite.fr/o/station-numixs-120885195167" target="_blank" rel="noopener">Voir nos événements sur Eventbrite</a></p>';
+    h += '<p class="lead">Les prochains rendez-vous de la Station. L\'inscription se fait sur Eventbrite.</p>';
+    if (!UP.length) return $('view').innerHTML = h + '<p class="empty">Aucun événement n\'est programmé pour le moment.<br>Revenez bientôt ou consultez <a href="https://www.eventbrite.fr/o/station-numixs-120885195167" target="_blank" rel="noopener">notre page Eventbrite</a>.</p>';
+    var ql = q.trim().toLowerCase();
+    var list = UP.filter(function (e) { return (filter === 'Tous' || e.theme === filter) && (!ql || (e.title + ' ' + e.theme + ' ' + e.place).toLowerCase().indexOf(ql) > -1); });
+    h += '<input class="search" id="q" type="search" placeholder="Rechercher un événement" aria-label="Rechercher un événement" value="' + esc(q) + '">';
+    if (THEMES.length > 2) h += '<div class="chips" role="group" aria-label="Filtrer par type">' + THEMES.map(function (t) { return '<button class="chip" data-filter="' + esc(t) + '" aria-pressed="' + (filter === t) + '">' + esc(t) + '</button>'; }).join('') + '</div>';
+    if (!list.length) h += '<p class="empty">Aucun événement ne correspond à cette recherche.</p>';
+    var last = '';
+    list.forEach(function (e) {
+      var k = fmtLong.format(e.date);
+      if (k !== last) { h += '<div class="day">' + esc(cap(fmtDay.format(e.date))) + '</div>'; last = k; }
+      h += '<button class="row" data-open="' + esc(e.id) + '"><span class="time">' + hhmm(e.date) + '</span><span class="body"><span class="name" style="display:block">' + esc(e.title) + '</span><span class="meta"><span class="tag">' + esc(e.theme) + '</span><span>Sarcelles</span><span class="status ok">' + esc(e.price || 'Sur inscription') + '</span></span></span></button>';
+    });
+    var keep = document.activeElement && document.activeElement.id === 'q', pos = keep ? document.activeElement.selectionStart : 0;
+    $('view').innerHTML = h;
+    if (keep) { var i = $('q'); i.focus(); try { i.setSelectionRange(pos, pos); } catch (x) {} }
+  }
+
+  var lastFocus = null;
+  function openSheet(e) {
+    lastFocus = document.activeElement;
+    var h = '<div class="handle"><span class="tag">' + esc(e.theme) + '</span><button class="btn ghost small" data-close>Fermer</button></div><h3>' + esc(e.title) + '</h3>';
+    if (e.desc) h += '<p>' + esc(e.desc) + '</p>';
+    h += '<dl class="facts"><dt>Date</dt><dd>' + esc(cap(fmtLong.format(e.date))) + '</dd><dt>Horaire</dt><dd>' + hhmm(e.date) + ' à ' + hhmm(e.end) + '</dd><dt>Lieu</dt><dd>' + esc(e.place) + '</dd><dt>Prix</dt><dd>' + esc(e.price || 'Voir Eventbrite') + '</dd></dl>';
+    h += '<a class="btn block" href="' + esc(e.url) + '" target="_blank" rel="noopener">S\'inscrire sur Eventbrite</a>';
+    h += '<button class="btn ghost block" data-ics="' + esc(e.id) + '">Ajouter à mon agenda</button>';
+    $('sheetBody').innerHTML = h; $('sheet').hidden = false;
+    var f = $('sheetBody').querySelector('a, button'); if (f) f.focus();
+  }
+  function closeSheet() { $('sheet').hidden = true; if (lastFocus && lastFocus.focus) try { lastFocus.focus(); } catch (x) {} }
+
+  function ics(e) {
+    function z(d) { return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); }
+    function t(v) { return String(v).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); }
+    return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Station numixs//Evenements//FR', 'BEGIN:VEVENT', 'UID:' + e.id + '@station-numixs', 'DTSTAMP:' + z(new Date()), 'DTSTART:' + z(e.date), 'DTEND:' + z(e.end),
+      'SUMMARY:' + t(e.title), 'LOCATION:' + t(e.place), 'DESCRIPTION:' + t('Inscription : ' + e.url), 'END:VEVENT', 'END:VCALENDAR'].join('\r\n') + '\r\n';
+  }
+  function download(e) {
+    var b = new Blob([ics(e)], { type: 'text/calendar;charset=utf-8' }), a = document.createElement('a');
+    a.href = URL.createObjectURL(b); a.download = 'numixs-' + e.id + '.ics'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1500);
+  }
+
+  document.addEventListener('click', function (x) {
+    var t = x.target.closest('[data-filter],[data-open],[data-close],[data-ics],#sheet');
+    if (!t) return;
+    if (t.id === 'sheet') { if (x.target === t) closeSheet(); return; }
+    if (t.dataset.close !== undefined) return closeSheet();
+    if (t.dataset.filter) { filter = t.dataset.filter; return render(); }
+    if (t.dataset.open) { var e = ev(t.dataset.open); if (e) openSheet(e); return; }
+    if (t.dataset.ics) { var e2 = ev(t.dataset.ics); if (e2) download(e2); }
+  });
+  document.addEventListener('input', function (x) { if (x.target.id === 'q') { q = x.target.value; render(); } });
+  document.addEventListener('keydown', function (x) { if (x.key === 'Escape' && !$('sheet').hidden) closeSheet(); });
+
+  fetch('events.json', { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(setData).catch(function () { failed = true; render(); });
+})();
+</script>
+</body>
+</html>
