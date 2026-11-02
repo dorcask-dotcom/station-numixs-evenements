@@ -27,6 +27,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Créer les icônes de l'application
+        run: node scripts/make-icons.js
       - name: Récupérer les événements Eventbrite
         continue-on-error: true
         run: node scripts/sync-events.js
