@@ -261,6 +261,7 @@ a.btn { display: flex; }
   fetch('events.json', { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(setData).catch(function () { failed = true; render(); });
 })();
 </script>
+<script src="extras.js" defer></script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 </body>
 </html>
