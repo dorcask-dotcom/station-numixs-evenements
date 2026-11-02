@@ -1,0 +1,96 @@
+{
+  "updatedAt": "2026-10-22T08:00:00Z",
+  "events": [
+    {
+      "id": "1994014736755",
+      "title": "Afterwork numixs",
+      "description": "Un afterwork convivial chaque dernier mardi du mois : startups, entrepreneurs, porteurs de projet, freelances, partenaires et curieux se retrouvent autour d'un verre et de quelques gourmandises. Venez seul ou accompagné, élargissez votre réseau et découvrez la maison du numérique de Sarcelles. Entrée gratuite sur inscription, places limitées.",
+      "start": "2026-10-27T17:00:00Z",
+      "end": "2026-10-27T19:00:00Z",
+      "url": "https://www.eventbrite.fr/e/1994014736755?aff=oddtdtcreator",
+      "venue": {
+        "name": "Station numixs",
+        "address": "6 Rue Jacques-Henri Labourdette, 95200 Sarcelles"
+      },
+      "isFree": true
+    },
+    {
+      "id": "1994014811980",
+      "title": "Petit déj' numixs",
+      "description": "Un café, des échanges et de nouvelles connexions : rejoignez le petit-déjeuner networking de la Station numixs.",
+      "start": "2026-11-03T08:30:00Z",
+      "end": "2026-11-03T10:00:00Z",
+      "url": "https://www.eventbrite.fr/e/1994014811980?aff=oddtdtcreator",
+      "venue": {
+        "name": "Station numixs",
+        "address": "6 Rue Jacques-Henri Labourdette, 95200 Sarcelles"
+      },
+      "isFree": null
+    },
+    {
+      "id": "1994014875169",
+      "title": "Afterwork numixs",
+      "description": "Un afterwork convivial chaque dernier mardi du mois : startups, entrepreneurs, porteurs de projet, freelances, partenaires et curieux se retrouvent autour d'un verre et de quelques gourmandises. Venez seul ou accompagné, élargissez votre réseau et découvrez la maison du numérique de Sarcelles. Entrée gratuite sur inscription, places limitées.",
+      "start": "2026-11-24T17:00:00Z",
+      "end": "2026-11-24T19:00:00Z",
+      "url": "https://www.eventbrite.fr/e/1994014875169?aff=oddtdtcreator",
+      "venue": {
+        "name": "Station numixs",
+        "address": "6 Rue Jacques-Henri Labourdette, 95200 Sarcelles"
+      },
+      "isFree": true
+    },
+    {
+      "id": "1994014975469",
+      "title": "Petit déj' numixs",
+      "description": "Un café, des échanges et de nouvelles connexions : rejoignez le petit-déjeuner networking de la Station numixs.",
+      "start": "2026-12-01T08:30:00Z",
+      "end": "2026-12-01T10:00:00Z",
+      "url": "https://www.eventbrite.fr/e/1994014975469?aff=oddtdtcreator",
+      "venue": {
+        "name": "Station numixs",
+        "address": "6 Rue Jacques-Henri Labourdette, 95200 Sarcelles"
+      },
+      "isFree": null
+    },
+    {
+      "id": "2003089929902",
+      "title": "Afterwork numixs",
+      "description": "Un afterwork convivial chaque dernier mardi du mois : startups, entrepreneurs, porteurs de projet, freelances, partenaires et curieux se retrouvent autour d'un verre et de quelques gourmandises. Venez seul ou accompagné, élargissez votre réseau et découvrez la maison du numérique de Sarcelles. Entrée gratuite sur inscription, places limitées.",
+      "start": "2027-01-26T17:00:00Z",
+      "end": "2027-01-26T19:00:00Z",
+      "url": "https://www.eventbrite.fr/e/2003089929902?aff=oddtdtcreator",
+      "venue": {
+        "name": "Station numixs",
+        "address": "6 Rue Jacques-Henri Labourdette, 95200 Sarcelles"
+      },
+      "isFree": true
+    },
+    {
+      "id": "2003090121475",
+      "title": "Afterwork numixs",
+      "description": "Un afterwork convivial chaque dernier mardi du mois : startups, entrepreneurs, porteurs de projet, freelances, partenaires et curieux se retrouvent autour d'un verre et de quelques gourmandises. Venez seul ou accompagné, élargissez votre réseau et découvrez la maison du numérique de Sarcelles. Entrée gratuite sur inscription, places limitées.",
+      "start": "2027-02-23T17:00:00Z",
+      "end": "2027-02-23T19:00:00Z",
+      "url": "https://www.eventbrite.fr/e/2003090121475?aff=oddtdtcreator",
+      "venue": {
+        "name": "Station numixs",
+        "address": "6 Rue Jacques-Henri Labourdette, 95200 Sarcelles"
+      },
+      "isFree": true
+    },
+    {
+      "id": "2003090247853",
+      "title": "Afterwork numixs",
+      "description": "Un afterwork convivial chaque dernier mardi du mois : startups, entrepreneurs, porteurs de projet, freelances, partenaires et curieux se retrouvent autour d'un verre et de quelques gourmandises. Venez seul ou accompagné, élargissez votre réseau et découvrez la maison du numérique de Sarcelles. Entrée gratuite sur inscription, places limitées.",
+      "start": "2027-03-30T16:00:00Z",
+      "end": "2027-03-30T18:00:00Z",
+      "url": "https://www.eventbrite.fr/e/2003090247853?aff=oddtdtcreator",
+      "venue": {
+        "name": "Station numixs",
+        "address": "6 Rue Jacques-Henri Labourdette, 95200 Sarcelles"
+      },
+      "isFree": true
+    }
+  ]
+}
