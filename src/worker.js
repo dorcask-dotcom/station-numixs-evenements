@@ -139,7 +139,7 @@ async function getEvents(env, force) {
 async function attendees(env, eventId) {
   const hit = attCache.get(eventId);
   if (hit && now() - hit.t < 60000) return hit.list;
-  const raw = await ebAll(env, '/events/' + eventId + '/attendees/', 'attendees', { status: 'attending', page_size: '50' }, 4);
+  const raw = await ebAll(env, '/events/' + eventId + '/attendees/', 'attendees', {}, 4);
   const list = raw.filter((a) => !a.cancelled && !a.refunded).map((a) => ({
     email: String((a.profile && a.profile.email) || '').trim().toLowerCase(),
     name: (a.profile && a.profile.name) || '',
