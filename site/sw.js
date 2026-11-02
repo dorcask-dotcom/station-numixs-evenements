@@ -16,7 +16,7 @@ self.addEventListener('fetch', function (e) {
   var url = new URL(req.url);
   if (url.origin !== location.origin) return;
   // Les réponses du serveur (billets, annuaire, alertes) ne sont jamais copiées par ce service.
-  if (url.pathname.indexOf('/api/') > -1) return;
+  if (url.pathname.indexOf('/api/') > -1 || url.pathname.indexOf('/admin') === 0) return;
   e.respondWith(
     fetch(req).then(function (res) {
       if (res && res.ok) { var copy = res.clone(); caches.open(VERSION).then(function (c) { c.put(req, copy); }); }
