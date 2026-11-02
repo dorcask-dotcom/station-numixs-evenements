@@ -90,7 +90,7 @@ async function eb(env, path, params) {
   const url = new URL(EB + path);
   for (const [k, v] of Object.entries(params || {})) url.searchParams.set(k, v);
   const r = await fetch(url, { headers: { Authorization: 'Bearer ' + env.EVENTBRITE_TOKEN } });
-  if (!r.ok) throw new Error('Eventbrite ' + r.status + ' sur ' + path);
+  if (!r.ok) { let d = ''; try { d = (await r.text()).slice(0, 300); } catch (e) {} throw new Error('Eventbrite ' + r.status + ' sur ' + path + ' ' + d); }
   return r.json();
 }
 async function ebAll(env, path, key, params, maxPages) {
