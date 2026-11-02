@@ -37,13 +37,16 @@ async function getAll(p, key, params) {
 }
 
 (async () => {
-  let orgId = ORG_ID;
-  if (!orgId) {
-    const j = await get('/users/me/organizations/');
-    if (!j.organizations || !j.organizations[0]) throw new Error('Ce jeton ne donne accès à aucune organisation Eventbrite.');
-    orgId = j.organizations[0].id;
+  const orgs = (await get('/users/me/organizations/')).organizations || [];
+  console.log('Organisations accessibles : ' + (orgs.map((o) => o.id + ' (' + o.name + ')').join(', ') || 'aucune'));
+  let raw = [];
+  const ids = ORG_ID ? [ORG_ID] : orgs.map((o) => o.id);
+  if (!ids.length) throw new Error('Ce jeton ne donne accès à aucune organisation Eventbrite.');
+  for (const id of ids) {
+    const evs = await getAll('/organizations/' + id + '/events/', 'events', { status: 'live,started', expand: 'venue', order_by: 'start_asc', page_size: '50' });
+    console.log('Organisation ' + id + ' : ' + evs.length + ' événements publiés');
+    raw = raw.concat(evs);
   }
-  const raw = await getAll('/organizations/' + orgId + '/events/', 'events', { status: 'live', expand: 'venue', order_by: 'start_asc', page_size: '50' });
   const now = Date.now();
   const events = raw.map((e) => ({
     id: String(e.id),
@@ -57,6 +60,7 @@ async function getAll(p, key, params) {
   })).filter((e) => e.start && e.end && Date.parse(e.end) >= now)
     .sort((a, b) => Date.parse(a.start) - Date.parse(b.start));
 
+  if (!events.length) { console.log('Aucun événement à venir trouvé : le programme déjà publié est conservé.'); return; }
   let previous = null;
   try { previous = JSON.parse(fs.readFileSync(OUT, 'utf8')); } catch (e) { /* premier passage */ }
   const same = previous && JSON.stringify(previous.events) === JSON.stringify(events);
