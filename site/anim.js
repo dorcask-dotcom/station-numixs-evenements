@@ -18,7 +18,11 @@
       '@keyframes xa-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}',
       '@keyframes xa-fade{from{opacity:0}to{opacity:1}}',
       '@keyframes xa-up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}',
-      '.xa-page{animation:xa-in .32s cubic-bezier(.2,.8,.2,1) both}',
+      '@keyframes xa-from-r{from{opacity:0;transform:translateX(44px)}to{opacity:1;transform:none}}',
+      '@keyframes xa-from-l{from{opacity:0;transform:translateX(-44px)}to{opacity:1;transform:none}}',
+      '.xa-r{animation:xa-from-r .5s cubic-bezier(.22,1,.36,1) both}',
+      '.xa-l{animation:xa-from-l .5s cubic-bezier(.22,1,.36,1) both}',
+      'html.xa-run,html.xa-run body{overflow-x:hidden}',
       '.xa-item{animation:xa-in .4s cubic-bezier(.2,.8,.2,1) both}',
       '.backdrop:not([hidden]){animation:xa-fade .2s ease both}',
       '.backdrop:not([hidden]) .sheet{animation:xa-up .3s cubic-bezier(.2,.8,.2,1) both}',
@@ -39,19 +43,27 @@
       setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 1850);
     }
 
-    /* Changement d'onglet. */
-    function replay(el) {
+    /* Changement d'onglet : la page glisse depuis la droite (ou la gauche si on revient en arrière). */
+    var order = ['agenda', 'billets', 'reseau', 'alertes'], cur = 0, runTimer = null, lastEl = null;
+    function replay(el, dir) {
       if (!el) return;
-      el.classList.remove('xa-page'); void el.offsetWidth; el.classList.add('xa-page');
-      setTimeout(function () { el.classList.remove('xa-page'); }, 450);
+      if (lastEl && lastEl !== el) lastEl.classList.remove('xa-r', 'xa-l');
+      lastEl = el;
+      el.classList.remove('xa-r', 'xa-l'); void el.offsetWidth; el.classList.add(dir);
+      document.documentElement.classList.add('xa-run');
+      clearTimeout(runTimer);
+      runTimer = setTimeout(function () { el.classList.remove('xa-r', 'xa-l'); document.documentElement.classList.remove('xa-run'); }, 650);
     }
     document.addEventListener('click', function (x) {
       var b = x.target.closest && x.target.closest('[data-tab]');
       if (!b) return;
+      var t = b.getAttribute('data-tab'), idx = order.indexOf(t);
+      if (idx < 0 || idx === cur) return;
+      var dir = idx > cur ? 'xa-r' : 'xa-l';
+      cur = idx;
       setTimeout(function () {
-        var xv = document.querySelector('.xv');
-        var target = b.getAttribute('data-tab') === 'agenda' ? document.getElementById('view') : xv;
-        replay(target);
+        var target = t === 'agenda' ? document.getElementById('view') : document.querySelector('.xv');
+        replay(target, dir);
       }, 30);
     }, true);
 
