@@ -75,7 +75,8 @@ async function init(env) {
     env.DB.prepare('CREATE TABLE IF NOT EXISTS outbox (id INTEGER PRIMARY KEY AUTOINCREMENT, notif_id INTEGER NOT NULL, endpoint TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS notified (k TEXT PRIMARY KEY, t INTEGER NOT NULL)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS profiles (event_id TEXT NOT NULL, h TEXT NOT NULL, name TEXT NOT NULL, org TEXT, looking TEXT, ev_end INTEGER NOT NULL, created INTEGER NOT NULL, PRIMARY KEY (event_id, h))'),
-    env.DB.prepare('CREATE TABLE IF NOT EXISTS hits (bucket TEXT NOT NULL, ip TEXT NOT NULL, t INTEGER NOT NULL)')
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS hits (bucket TEXT NOT NULL, ip TEXT NOT NULL, t INTEGER NOT NULL)'),
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS scheduled (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, body TEXT NOT NULL, at INTEGER NOT NULL)')
   ]);
   try { await env.DB.prepare('ALTER TABLE profiles ADD COLUMN keep INTEGER NOT NULL DEFAULT 0').run(); } catch (e) { /* colonne déjà présente */ }
   ready = true;
@@ -347,6 +348,11 @@ async function cron(env) {
       if (delta > 23 * 3600000 && delta <= 24 * 3600000 && await once(env, 'd1:' + e.id)) await notify(env, 'Demain à la Station', e.title + ' · ' + when(e.start));
       if (delta > 0 && delta <= 3600000 && await once(env, 'h1:' + e.id)) await notify(env, 'Bientôt', e.title + ' commence dans moins d\'une heure.');
     }
+  }
+  const due = (await env.DB.prepare('SELECT id, title, body FROM scheduled WHERE at <= ? ORDER BY at LIMIT 5').bind(now()).all()).results || [];
+  for (const d of due) {
+    await env.DB.prepare('DELETE FROM scheduled WHERE id = ?').bind(d.id).run();
+    await notify(env, d.title, d.body, './');
   }
   await drain(env, 35);
   const t = now();
