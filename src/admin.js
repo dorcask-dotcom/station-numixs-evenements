@@ -55,7 +55,7 @@ export async function adminRoute(req, env, url, H) {
     const kv = await db.prepare("SELECT t FROM kv WHERE k = 'events'").first();
     const one = async (sql) => { const r = await db.prepare(sql).first(); return r ? r.n : 0; };
     const notifs = (await db.prepare('SELECT title, body, t FROM notifs ORDER BY id DESC LIMIT 10').all()).results || [];
-    return H.json({ subscribers: await one('SELECT COUNT(*) AS n FROM subs'), pending: await one('SELECT COUNT(*) AS n FROM outbox'), profiles: await one('SELECT COUNT(*) AS n FROM profiles'), events: events.length, eventsAt: kv ? kv.t : null, eventList: events.map((e) => ({ id: e.id, title: e.title, start: e.start })), notifs });
+    return H.json({ subscribers: await one('SELECT COUNT(*) AS n FROM subs'), pending: await one('SELECT COUNT(*) AS n FROM outbox'), profiles: await one('SELECT COUNT(*) AS n FROM profiles'), events: events.length, eventsAt: kv ? kv.t : null, eventList: events.concat(await H.getPast(env).catch(() => [])).map((e) => ({ id: e.id, title: e.title, start: e.start })), notifs });
   }
   if (m === 'GET' && p === '/api/admin/profiles') {
     const id = String(url.searchParams.get('eventId') || '');
