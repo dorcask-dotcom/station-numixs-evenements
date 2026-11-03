@@ -136,22 +136,19 @@ h2.title { font-family: var(--font-display); font-size: 38px; font-weight: 700; 
 a.btn { display: flex; }
 .btn.block + .btn.block { margin-top: 10px; }
 .note { color: var(--muted); font-size: 14px; }
-/* Couleurs plus vives : le bleu Roissy Pays de France s'ajoute au vert. */
-:root { --board: #0064EC; --board-fg: #FFFFFF; --board-muted: #D6E6FF; --surface: #EEF4FF; --line: #CFE0FA; --accent: #0064EC; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --board: #003A8C; --surface: #2A3550; --line: #3F4D6E; --accent: #7FB0FF; } }
-:root[data-theme="dark"] { --board: #003A8C; --surface: #2A3550; --line: #3F4D6E; --accent: #7FB0FF; }
-h2.title { color: var(--accent); }
-.next small { color: #FFFFFF; }
-.day { border-bottom-color: var(--accent); }
-.day::before { background: var(--accent); }
-.row .time { color: var(--accent); }
-.chip { border-color: var(--accent); color: var(--accent); }
-.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #FFFFFF; }
+/* Moins de gris : fonds et bandeaux teintés de vert. */
+:root { --board: #4A5A0C; --board-fg: #FFFFFF; --board-muted: #E6EAB4; --surface: #F8F9DC; --line: #E3E5A6; --muted: #5E6140; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --board: #2C3607; --surface: #30361A; --line: #484F25; --muted: #CDD1A0; } }
+:root[data-theme="dark"] { --board: #2C3607; --surface: #30361A; --line: #484F25; --muted: #CDD1A0; }
+.chip { border-color: #9AA61A; }
+.day { border-bottom-color: #C3C724; }
+.btn.ghost { border-color: #9AA61A; }
 .tag { background: var(--green); }
-.status.ok { background: var(--accent); color: #FFFFFF; }
-.btn.ghost { border-color: var(--accent); color: var(--accent); }
-.sheet { border-top-color: var(--accent); }
-html .xnav button[aria-current="page"] { color: #FFFFFF; border-top-color: var(--green); }
+.status.ok { background: var(--board); color: #FFFFFF; }
+.row .time { color: var(--board); }
+html .xnav button[aria-current="page"] { color: var(--green); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .row .time { color: var(--green); } }
+:root[data-theme="dark"] .row .time { color: var(--green); }
 </style>
 
 </head>
