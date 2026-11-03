@@ -17,6 +17,7 @@
   }
   function savedTickets() { try { var t = JSON.parse(lsGet(LS.tickets) || 'null'); return t && Array.isArray(t.list) ? t : null; } catch (e) { return null; } }
   function upcoming(list) { return (list || []).filter(function (t) { return Date.parse(t.end) >= Date.now(); }); }
+  function past(list) { return (list || []).filter(function (t) { return Date.parse(t.end) < Date.now(); }); }
 
   var css = document.createElement('style');
   css.textContent = [
@@ -54,6 +55,11 @@
         '<canvas data-qr="' + i + '" role="img" aria-label="QR code du billet de ' + esc(t.name) + '"></canvas><div class="xcode">' + esc(t.barcode) + '</div>' +
         '<p class="meta" style="justify-content:center">' + esc(t.name) + ' · ' + esc(t.ticket) + (t.checkedIn ? ' · <b>Déjà scanné</b>' : '') + '</p></article>';
     });
+    var ps = past(list);
+    if (ps.length) {
+      h += '<h2 style="margin-top:28px">Événements passés</h2>';
+      ps.forEach(function (t) { h += '<article class="xcard"><h3>' + esc(t.title) + '</h3><div class="meta"><span>' + esc(when(t.start)) + '</span></div><p class="meta">' + esc(t.ticket) + ' · Vous y étiez</p></article>'; });
+    }
     h += '<button class="btn ghost" data-x="refresh">Actualiser</button><button class="btn ghost" data-x="forget">Oublier mon adresse sur ce téléphone</button><div id="xm"></div>';
     xview.innerHTML = h;
     [].forEach.call(xview.querySelectorAll('canvas[data-qr]'), function (c) { try { window.NumixsQR.draw(c, ups[+c.getAttribute('data-qr')].barcode, 6); } catch (e) { c.replaceWith(document.createTextNode('QR indisponible : présentez le code ci-dessous.')); } });
@@ -78,10 +84,10 @@
   function loadNetwork(eventId) {
     var email = lsGet(LS.email), cached = savedTickets();
     if (!email) { xview.innerHTML = emailForm('Réseau', 'L\'annuaire est réservé aux personnes inscrites à un événement. Indiquez votre adresse pour le vérifier.'); return; }
-    var evs = upcoming(cached && cached.list), seen = {}; evs = evs.filter(function (t) { if (seen[t.eventId]) return false; seen[t.eventId] = 1; return true; });
+    var evs = upcoming(cached && cached.list).concat(past(cached && cached.list)), seen = {}; evs = evs.filter(function (t) { if (seen[t.eventId]) return false; seen[t.eventId] = 1; return true; });
     if (!evs.length) { xview.innerHTML = '<h2>Réseau</h2><p class="empty">Inscrivez-vous à un événement pour accéder à l\'annuaire de ses participants.</p><button class="btn ghost" data-x="refresh-net">Vérifier mes inscriptions</button>'; return; }
     var cur = eventId || evs[0].eventId;
-    var sel = evs.length > 1 ? '<label for="xev">Événement</label><select id="xev">' + evs.map(function (t) { return '<option value="' + esc(t.eventId) + '"' + (t.eventId === cur ? ' selected' : '') + '>' + esc(t.title + ' · ' + when(t.start)) + '</option>'; }).join('') + '</select>' : '<p class="note">' + esc(evs[0].title + ' · ' + when(evs[0].start)) + '</p>';
+    var sel = evs.length > 1 ? '<label for="xev">Événement</label><select id="xev">' + evs.map(function (t) { return '<option value="' + esc(t.eventId) + '"' + (t.eventId === cur ? ' selected' : '') + '>' + esc(t.title + ' · ' + when(t.start) + (Date.parse(t.end) < Date.now() ? ' (passé)' : '')) + '</option>'; }).join('') + '</select>' : '<p class="note">' + esc(evs[0].title + ' · ' + when(evs[0].start)) + '</p>';
     xview.innerHTML = '<h2>Réseau</h2>' + sel + '<p class="empty">Chargement…</p>';
     api('network/me', { email: email, eventId: cur }).then(function (me) {
       if (tab !== 'reseau') return;
@@ -89,7 +95,7 @@
         xview.innerHTML = '<h2>Réseau</h2>' + sel + '<p>Rejoignez l\'annuaire pour voir qui sera là et être repéré par les autres participants.</p>' +
           '<label for="xn">Prénom ou nom affiché</label><input id="xn" type="text" maxlength="60" value="' + esc(me.suggestedName) + '"><label for="xo">Structure (facultatif)</label><input id="xo" type="text" maxlength="80">' +
           '<label for="xl">Ce que vous cherchez ou proposez (facultatif)</label><textarea id="xl" maxlength="200"></textarea>' +
-          '<label class="consent"><input id="xc" type="checkbox"><span>J\'accepte que ces informations soient visibles des autres inscrits à cet événement qui ont aussi rejoint l\'annuaire. Mon adresse e-mail n\'est jamais affichée. Mon profil est supprimé 2 jours après l\'événement, ou dès que je le retire.</span></label>' +
+          '<label class="consent"><input id="xc" type="checkbox"><span>J\'accepte que ces informations soient visibles des autres inscrits à cet événement qui ont aussi rejoint l\'annuaire. Mon adresse e-mail n\'est jamais affichée. Mon profil reste consultable 12 mois après l\'événement, pour retrouver les personnes rencontrées, puis il est supprimé ; je peux le retirer à tout moment.</span></label>' +
           '<button class="btn block" data-x="join" data-ev="' + esc(cur) + '">Rejoindre l\'annuaire</button><div id="xm"></div>';
         return;
       }
