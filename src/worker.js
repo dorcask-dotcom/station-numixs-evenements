@@ -22,7 +22,7 @@ export default {
     if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/api/admin/')) {
       try {
         await init(env);
-        return await adminRoute(req, env, url, { json, fail, body, cleanEmail, getEvents, findTickets, notify, drain });
+        return await adminRoute(req, env, url, { json, fail, body, cleanEmail, getEvents, getPast, findTickets, notify, drain });
       } catch (e) { console.error('Admin', e && e.message); return json({ error: 'Une erreur est survenue.' }, 500); }
     }
     if (url.pathname !== '/events.json' && !url.pathname.startsWith('/api/')) return env.ASSETS.fetch(req);
@@ -77,6 +77,7 @@ async function init(env) {
     env.DB.prepare('CREATE TABLE IF NOT EXISTS profiles (event_id TEXT NOT NULL, h TEXT NOT NULL, name TEXT NOT NULL, org TEXT, looking TEXT, ev_end INTEGER NOT NULL, created INTEGER NOT NULL, PRIMARY KEY (event_id, h))'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS hits (bucket TEXT NOT NULL, ip TEXT NOT NULL, t INTEGER NOT NULL)')
   ]);
+  try { await env.DB.prepare('ALTER TABLE profiles ADD COLUMN keep INTEGER NOT NULL DEFAULT 0').run(); } catch (e) { /* colonne déjà présente */ }
   ready = true;
 }
 async function kvGet(env, k) { const r = await env.DB.prepare('SELECT v, t FROM kv WHERE k = ?').bind(k).first(); return r ? { v: JSON.parse(r.v), t: r.t } : null; }
@@ -143,9 +144,29 @@ async function getEvents(env, force) {
     throw e;
   }
 }
-async function attendees(env, eventId) {
+async function getPast(env) {
+  const c = await kvGet(env, 'past');
+  if (c && now() - c.t < 6 * 3600000) return c.v.events;
+  try {
+    let raw = [];
+    for (const id of await orgIds(env)) raw = raw.concat(await ebAll(env, '/organizations/' + id + '/events/', 'events', { status: 'ended,completed', expand: 'venue', order_by: 'start_desc', page_size: '50' }, 1));
+    const events = raw.map((e) => ({
+      id: String(e.id),
+      title: (e.name && e.name.text) || 'Événement',
+      start: e.start && e.start.utc,
+      end: e.end && e.end.utc,
+      venue: e.venue ? { name: e.venue.name || 'Station numixs', address: (e.venue.address && e.venue.address.localized_address_display) || '' } : null
+    })).filter((e) => e.start && e.end && Date.parse(e.end) < now() && Date.parse(e.end) > now() - 365 * 86400000).sort((a, b) => Date.parse(b.start) - Date.parse(a.start)).slice(0, 12);
+    await kvSet(env, 'past', { events });
+    return events;
+  } catch (e) {
+    if (c) return c.v.events;
+    return [];
+  }
+}
+async function attendees(env, eventId, ttl) {
   const hit = attCache.get(eventId);
-  if (hit && now() - hit.t < 60000) return hit.list;
+  if (hit && now() - hit.t < (ttl || 60000)) return hit.list;
   const raw = await ebAll(env, '/events/' + eventId + '/attendees/', 'attendees', {}, 4);
   const list = raw.filter((a) => !a.cancelled && !a.refunded).map((a) => ({
     email: String((a.profile && a.profile.email) || '').trim().toLowerCase(),
@@ -203,6 +224,14 @@ async function findTickets(env, email) {
   for (const { e, list } of lists) for (const a of list) {
     if (a.email === email && a.barcode) out.push({ eventId: e.id, title: e.title, start: e.start, end: e.end, place: e.venue ? [e.venue.name, e.venue.address].filter(Boolean).join(', ') : 'Station numixs, Sarcelles', name: a.name, ticket: a.ticket, barcode: a.barcode, checkedIn: a.checkedIn });
   }
+  const past = (await getPast(env)).slice(0, 8);
+  const pl = await Promise.all(past.map(async (e) => ({ e, list: await attendees(env, e.id, 900000).catch(() => []) })));
+  for (const { e, list } of pl) {
+    const used = list.some((a) => a.checkedIn);
+    for (const a of list) {
+      if (a.email === email && (a.checkedIn || !used)) out.push({ eventId: e.id, title: e.title, start: e.start, end: e.end, place: e.venue ? [e.venue.name, e.venue.address].filter(Boolean).join(', ') : 'Station numixs, Sarcelles', name: a.name, ticket: a.ticket, past: true, checkedIn: a.checkedIn });
+    }
+  }
   return out;
 }
 
@@ -213,16 +242,19 @@ async function network(req, env, p, b) {
   if (await limited(env, req, 'network', 30, 600)) return fail('Trop d\'essais. Réessayez dans quelques minutes.', 429);
   const h = await sha(email + '|' + eventId);
   if (p === '/api/network/leave') { await env.DB.prepare('DELETE FROM profiles WHERE event_id = ? AND h = ?').bind(eventId, h).run(); return json({ ok: true }); }
-  const ev = (await getEvents(env)).find((e) => e.id === eventId);
-  if (!ev) return fail('Cet événement n\'est plus au programme.', 404);
-  const me = (await attendees(env, eventId)).find((a) => a.email === email);
-  if (!me) return fail('Aucune inscription trouvée pour cette adresse sur cet événement.', 403);
+  let ev = (await getEvents(env)).find((e) => e.id === eventId), past = false;
+  if (!ev) { ev = (await getPast(env)).find((e) => e.id === eventId); past = true; }
+  if (!ev) return fail('Cet événement est introuvable ou trop ancien.', 404);
+  const list = await attendees(env, eventId, past ? 900000 : 60000);
+  const used = list.some((a) => a.checkedIn);
+  const me = list.find((a) => a.email === email && (!past || a.checkedIn || !used));
+  if (!me) return fail(past ? 'Vous ne figurez pas parmi les participants de cet événement.' : 'Aucune inscription trouvée pour cette adresse sur cet événement.', 403);
   const mine = await env.DB.prepare('SELECT name, org, looking FROM profiles WHERE event_id = ? AND h = ?').bind(eventId, h).first();
   if (p === '/api/network/me') return json({ joined: !!mine, profile: mine || null, suggestedName: me.first || '' });
   if (p === '/api/network/join') {
     if (b.consent !== true) return fail('Votre accord est nécessaire pour apparaître dans l\'annuaire.');
     const name = cleanText(b.name || me.first, 60); if (!name) return fail('Indiquez un prénom ou un nom.');
-    await env.DB.prepare('INSERT INTO profiles (event_id, h, name, org, looking, ev_end, created) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT(event_id, h) DO UPDATE SET name = excluded.name, org = excluded.org, looking = excluded.looking')
+    await env.DB.prepare('INSERT INTO profiles (event_id, h, name, org, looking, ev_end, created, keep) VALUES (?, ?, ?, ?, ?, ?, ?, 1) ON CONFLICT(event_id, h) DO UPDATE SET name = excluded.name, org = excluded.org, looking = excluded.looking, keep = 1')
       .bind(eventId, h, name, cleanText(b.org, 80), cleanText(b.looking, 200), Date.parse(ev.end), now()).run();
     return json({ ok: true });
   }
@@ -319,7 +351,8 @@ async function cron(env) {
   await drain(env, 35);
   const t = now();
   await env.DB.batch([
-    env.DB.prepare('DELETE FROM profiles WHERE ev_end < ?').bind(t - 2 * 86400000),
+    env.DB.prepare('DELETE FROM profiles WHERE keep = 0 AND ev_end < ?').bind(t - 2 * 86400000),
+    env.DB.prepare('DELETE FROM profiles WHERE keep = 1 AND ev_end < ?').bind(t - 365 * 86400000),
     env.DB.prepare('DELETE FROM hits WHERE t < ?').bind(t - 3600000),
     env.DB.prepare('DELETE FROM notifs WHERE t < ?').bind(t - 60 * 86400000),
     env.DB.prepare('DELETE FROM notified WHERE t < ?').bind(t - 90 * 86400000)
