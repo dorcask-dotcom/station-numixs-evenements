@@ -34,8 +34,9 @@ export default {
       return json({ error: 'Une erreur est survenue. Réessayez dans un instant.' }, 500);
     }
   },
-  async scheduled(_event, env, ctx) {
-    ctx.waitUntil(init(env).then(() => cron(env)).catch((e) => console.error('Cron', e && e.message)));
+  async scheduled(event, env, ctx) {
+    const full = new Date(event && event.scheduledTime ? event.scheduledTime : Date.now()).getUTCMinutes() % 30 === 0;
+    ctx.waitUntil(init(env).then(() => cron(env, full)).catch((e) => console.error('Cron', e && e.message)));
   }
 };
 
@@ -330,10 +331,10 @@ async function once(env, key) {
   return !!(r.meta && r.meta.changes);
 }
 
-/* ---------- tâche planifiée (toutes les 30 minutes) ---------- */
-async function cron(env) {
+/* ---------- tâche planifiée (chaque minute : envois programmés ; toutes les 30 min : synchro + ménage) ---------- */
+async function cron(env, full) {
   let events = null;
-  try { events = await getEvents(env, true); } catch (e) { console.error('Programme', e && e.message); }
+  if (full) try { events = await getEvents(env, true); } catch (e) { console.error('Programme', e && e.message); }
   if (events) {
     const seen = await kvGet(env, 'seen');
     const ids = events.map((e) => e.id);
@@ -355,6 +356,7 @@ async function cron(env) {
     await notify(env, d.title, d.body, './');
   }
   await drain(env, 35);
+  if (!full) return;
   const t = now();
   await env.DB.batch([
     env.DB.prepare('DELETE FROM profiles WHERE keep = 0 AND ev_end < ?').bind(t - 2 * 86400000),
