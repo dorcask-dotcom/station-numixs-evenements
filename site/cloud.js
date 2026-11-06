@@ -93,7 +93,7 @@
       if (tab !== 'reseau') return;
       if (!me.joined) {
         xview.innerHTML = '<h2>Réseau</h2>' + sel + '<p>Rejoignez l\'annuaire pour voir qui sera là et être repéré par les autres participants.</p>' +
-          '<label for="xn">Prénom ou nom affiché</label><input id="xn" type="text" maxlength="60" value="' + esc(me.suggestedName) + '"><label for="xo">Structure (facultatif)</label><input id="xo" type="text" maxlength="80">' +
+          '<label for="xn">Prénom ou nom affiché</label><input id="xn" type="text" autocomplete="name" maxlength="60" value="' + esc(me.suggestedName) + '"><label for="xo">Structure (facultatif)</label><input id="xo" type="text" autocomplete="organization" maxlength="80">' +
           '<label for="xl">Ce que vous cherchez ou proposez (facultatif)</label><textarea id="xl" maxlength="200"></textarea>' +
           '<label class="consent"><input id="xc" type="checkbox"><span>J\'accepte que ces informations soient visibles des autres inscrits à cet événement qui ont aussi rejoint l\'annuaire. Mon adresse e-mail n\'est jamais affichée. Mon profil reste consultable 12 mois après l\'événement, pour retrouver les personnes rencontrées, puis il est supprimé ; je peux le retirer à tout moment.</span></label>' +
           '<button class="btn block" data-x="join" data-ev="' + esc(cur) + '">Rejoindre l\'annuaire</button><div id="xm"></div>';
@@ -102,7 +102,7 @@
       return api('network/list', { email: email, eventId: cur }).then(function (l) {
         if (tab !== 'reseau') return;
         var h = '<h2>Réseau</h2>' + sel + '<p class="note">Vous êtes dans l\'annuaire en tant que <b>' + esc(me.profile.name) + '</b>.</p>';
-        h += l.people.length ? l.people.map(function (p) { return '<div class="xperson"><b>' + esc(p.name) + '</b>' + (p.org ? '<span class="meta">' + esc(p.org) + '</span>' : '') + (p.looking ? '<p style="margin:4px 0 0">' + esc(p.looking) + '</p>' : '') + '</div>'; }).join('') : '<p class="empty">Personne d\'autre pour le moment. Les profils apparaîtront ici.</p>';
+        h += l.people.length ? '<ul class="xlist">' + l.people.map(function (p) { return '<li class="xperson"><b>' + esc(p.name) + '</b>' + (p.org ? '<span class="meta">' + esc(p.org) + '</span>' : '') + (p.looking ? '<p style="margin:4px 0 0">' + esc(p.looking) + '</p>' : '') + '</li>'; }).join('') + '</ul>' : '<p class="empty">Personne d\'autre pour le moment. Les profils apparaîtront ici.</p>';
         h += '<button class="btn ghost" data-x="refresh-net" style="margin-top:16px">Actualiser</button><button class="btn ghost" data-x="leave" data-ev="' + esc(cur) + '">Retirer mon profil</button><div id="xm"></div>';
         xview.innerHTML = h;
       });
@@ -125,7 +125,7 @@
       else if (r[0] === 'on') h += '<p class="xmsg">Notifications activées sur ce téléphone.</p><button class="btn ghost" data-x="push-off">Désactiver</button>';
       else h += '<button class="btn block" data-x="push-on">Activer les notifications</button>';
       h += '<div id="xm"></div><h2 style="font-size:28px;margin-top:28px">Dernières alertes</h2>';
-      h += r[1].length ? r[1].map(function (n) { return '<div class="xperson"><b style="font-size:21px">' + esc(n.title) + '</b><span>' + esc(n.body) + '</span><div class="note">' + esc(when(new Date(n.t).toISOString())) + '</div></div>'; }).join('') : '<p class="empty">Aucune alerte pour le moment.</p>';
+      h += r[1].length ? '<ul class="xlist">' + r[1].map(function (n) { return '<li class="xperson"><b style="font-size:21px">' + esc(n.title) + '</b><span>' + esc(n.body) + '</span><div class="note">' + esc(when(new Date(n.t).toISOString())) + '</div></li>'; }).join('') + '</ul>' : '<p class="empty">Aucune alerte pour le moment.</p>';
       xview.innerHTML = h;
     });
   }
@@ -159,7 +159,13 @@
 
   document.addEventListener('click', function (x) {
     var b = x.target.closest('[data-tab],[data-x]'); if (!b) return;
-    if (b.dataset.tab) { show(b.dataset.tab); return; }
+    if (b.dataset.tab) {
+      show(b.dataset.tab);
+      var tgt = b.dataset.tab === 'agenda' ? $('view') : xview;
+      document.title = b.textContent + ' · Station numixs';
+      if (tgt) { tgt.setAttribute('aria-label', b.textContent); tgt.focus({ preventScroll: true }); }
+      return;
+    }
     var a = b.dataset.x, email = lsGet(LS.email);
     if (a === 'save-email') {
       var v = ($('xe').value || '').trim().toLowerCase();
@@ -180,7 +186,7 @@
 
   fetch('api/ping', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
     if (!j || !j.ok) return;
-    xview = document.createElement('section'); xview.id = 'xview'; xview.className = 'xv'; xview.hidden = true;
+    xview = document.createElement('section'); xview.id = 'xview'; xview.className = 'xv'; xview.hidden = true; xview.setAttribute('role', 'main'); xview.tabIndex = -1;
     var main = $('view'); main.insertAdjacentElement('afterend', xview);
     nav = document.createElement('nav'); nav.className = 'xnav'; nav.setAttribute('aria-label', 'Navigation principale');
     nav.innerHTML = '<div><button data-tab="agenda" aria-current="page">Agenda</button><button data-tab="billets">Billets</button><button data-tab="reseau">Réseau</button><button data-tab="alertes">Alertes</button></div>';
