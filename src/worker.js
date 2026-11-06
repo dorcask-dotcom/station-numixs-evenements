@@ -77,7 +77,8 @@ async function init(env) {
     env.DB.prepare('CREATE TABLE IF NOT EXISTS notified (k TEXT PRIMARY KEY, t INTEGER NOT NULL)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS profiles (event_id TEXT NOT NULL, h TEXT NOT NULL, name TEXT NOT NULL, org TEXT, looking TEXT, ev_end INTEGER NOT NULL, created INTEGER NOT NULL, PRIMARY KEY (event_id, h))'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS hits (bucket TEXT NOT NULL, ip TEXT NOT NULL, t INTEGER NOT NULL)'),
-    env.DB.prepare('CREATE TABLE IF NOT EXISTS scheduled (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, body TEXT NOT NULL, at INTEGER NOT NULL)')
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS scheduled (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, body TEXT NOT NULL, at INTEGER NOT NULL)'),
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS welcomed (h TEXT PRIMARY KEY, t INTEGER NOT NULL)')
   ]);
   try { await env.DB.prepare('ALTER TABLE profiles ADD COLUMN keep INTEGER NOT NULL DEFAULT 0').run(); } catch (e) { /* colonne déjà présente */ }
   ready = true;
@@ -213,7 +214,13 @@ async function route(req, env, url) {
   if (p === '/api/tickets') {
     const email = cleanEmail(b.email); if (!email) return fail('Adresse e-mail invalide.');
     if (await limited(env, req, 'tickets', 10, 600)) return fail('Trop d\'essais. Réessayez dans quelques minutes.', 429);
-    return json({ tickets: await findTickets(env, email) });
+    const tickets = await findTickets(env, email);
+    let welcome = false;
+    if (b.first === true && tickets.length) {
+      const r = await env.DB.prepare('INSERT INTO welcomed (h, t) VALUES (?, ?) ON CONFLICT(h) DO NOTHING').bind(await sha(email), now()).run();
+      welcome = !!(r.meta && r.meta.changes);
+    }
+    return json({ tickets, welcome });
   }
   if (p.startsWith('/api/network/')) return network(req, env, p, b);
   return fail('Introuvable', 404);
@@ -363,6 +370,7 @@ async function cron(env, full) {
     env.DB.prepare('DELETE FROM profiles WHERE keep = 1 AND ev_end < ?').bind(t - 365 * 86400000),
     env.DB.prepare('DELETE FROM hits WHERE t < ?').bind(t - 3600000),
     env.DB.prepare('DELETE FROM notifs WHERE t < ?').bind(t - 60 * 86400000),
-    env.DB.prepare('DELETE FROM notified WHERE t < ?').bind(t - 90 * 86400000)
+    env.DB.prepare('DELETE FROM notified WHERE t < ?').bind(t - 90 * 86400000),
+    env.DB.prepare('DELETE FROM welcomed WHERE t < ?').bind(t - 365 * 86400000)
   ]);
 }
