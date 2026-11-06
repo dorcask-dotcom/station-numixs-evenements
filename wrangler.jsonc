@@ -14,6 +14,6 @@
     "ACCESS_TEAM_DOMAIN": "numixs.cloudflareaccess.com",
     "ACCESS_AUD": "fde51c3b179ecbac618982e59564f54a414a15958d00982c54cd7d533143e690"
   },
-  "triggers": { "crons": ["*/30 * * * *"] },
+  "triggers": { "crons": ["* * * * *"] },
   "observability": { "enabled": true }
 }
