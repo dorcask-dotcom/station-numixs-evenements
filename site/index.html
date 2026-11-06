@@ -149,10 +149,26 @@ a.btn { display: flex; }
 html .xnav button[aria-current="page"] { color: var(--green); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .row .time { color: var(--green); } }
 :root[data-theme="dark"] .row .time { color: var(--green); }
+/* Accessibilité */
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: 8px; top: -100px; z-index: 200; background: #FFFFFF; color: #1A1A19; padding: 12px 16px; font-weight: 700; border: 3px solid #1A1A19; }
+.skip:focus { top: 8px; }
+main:focus, .xv:focus { outline: none; }
+:focus-visible { outline: 3px solid #1A1A19; outline-offset: 2px; box-shadow: 0 0 0 5px #FFFFFF; }
+.next :focus-visible, .xnav :focus-visible { outline-color: #FFFFFF; box-shadow: 0 0 0 5px #1A1A19; }
+:root[data-theme="dark"] :focus-visible { outline-color: #FFFFFF; box-shadow: 0 0 0 5px #000000; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :focus-visible { outline-color: #FFFFFF; box-shadow: 0 0 0 5px #000000; } }
+.search::placeholder { color: var(--muted); opacity: 1; }
+.chip, .btn.small { min-height: 44px; }
+.btn[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: var(--on-green); }
+.xlist { list-style: none; margin: 0; padding: 0; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
 </style>
 
 </head>
 <body>
+<a class="skip" href="#view">Aller au contenu</a>
+<div class="sr" id="live" role="status" aria-live="polite"></div>
 <div class="app">
   <header>
     <div class="brandband">
@@ -161,15 +177,15 @@ html .xnav button[aria-current="page"] { color: var(--green); }
       <p class="tagline">La maison du numérique</p>
       <span class="sync"><i></i><span id="syncLabel">Programme Eventbrite</span></span>
     </div>
-    <div class="next" id="next" hidden></div>
+    <div class="next" id="next" role="region" aria-label="Prochain événement" hidden></div>
   </header>
-  <main id="view"><p class="empty">Chargement du programme…</p></main>
+  <main id="view" tabindex="-1"><p class="empty">Chargement du programme…</p></main>
   <footer class="foot">
     <span>Station numixs · 6 rue Jacques-Henri Labourdette, 95200 Sarcelles · Roissy Pays de France agglomération.</span>
-    <a href="https://www.eventbrite.fr/o/station-numixs-120885195167" target="_blank" rel="noopener">Tous nos événements sur Eventbrite</a>
+    <a href="https://www.eventbrite.fr/o/station-numixs-120885195167" target="_blank" rel="noopener">Tous nos événements sur Eventbrite<span class="sr"> (s'ouvre dans un nouvel onglet)</span></a>
   </footer>
 </div>
-<div class="backdrop" id="sheet" hidden><div class="sheet" role="dialog" aria-modal="true" id="sheetBody"></div></div>
+<div class="backdrop" id="sheet" hidden><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" id="sheetBody"></div></div>
 
 <script>
 (function () {
@@ -226,9 +242,10 @@ html .xnav button[aria-current="page"] { color: var(--green); }
     var last = '';
     list.forEach(function (e) {
       var k = fmtLong.format(e.date);
-      if (k !== last) { h += '<div class="day">' + esc(cap(fmtDay.format(e.date))) + '</div>'; last = k; }
-      h += '<button class="row" data-open="' + esc(e.id) + '"><span class="time">' + hhmm(e.date) + '</span><span class="body"><span class="name" style="display:block">' + esc(e.title) + '</span><span class="meta"><span class="tag">' + esc(e.theme) + '</span><span>Sarcelles</span><span class="status ok">' + esc(e.price || 'Sur inscription') + '</span></span></span></button>';
+      if (k !== last) { h += '<h3 class="day">' + esc(cap(fmtDay.format(e.date))) + '</h3>'; last = k; }
+      h += '<button class="row" aria-haspopup="dialog" data-open="' + esc(e.id) + '"><span class="time">' + hhmm(e.date) + '</span><span class="body"><span class="name" style="display:block">' + esc(e.title) + '</span><span class="meta"><span class="tag">' + esc(e.theme) + '</span><span>Sarcelles</span><span class="status ok">' + esc(e.price || 'Sur inscription') + '</span></span></span></button>';
     });
+    $('live').textContent = list.length + (list.length > 1 ? ' événements affichés' : ' événement affiché');
     var keep = document.activeElement && document.activeElement.id === 'q', pos = keep ? document.activeElement.selectionStart : 0;
     $('view').innerHTML = h;
     if (keep) { var i = $('q'); i.focus(); try { i.setSelectionRange(pos, pos); } catch (x) {} }
@@ -237,15 +254,16 @@ html .xnav button[aria-current="page"] { color: var(--green); }
   var lastFocus = null;
   function openSheet(e) {
     lastFocus = document.activeElement;
-    var h = '<div class="handle"><span class="tag">' + esc(e.theme) + '</span><button class="btn ghost small" data-close>Fermer</button></div><h3>' + esc(e.title) + '</h3>';
+    var h = '<div class="handle"><span class="tag">' + esc(e.theme) + '</span><button class="btn ghost small" data-close>Fermer</button></div><h3 id="sheetTitle">' + esc(e.title) + '</h3>';
     if (e.desc) h += '<p>' + esc(e.desc) + '</p>';
     h += '<dl class="facts"><dt>Date</dt><dd>' + esc(cap(fmtLong.format(e.date))) + '</dd><dt>Horaire</dt><dd>' + hhmm(e.date) + ' à ' + hhmm(e.end) + '</dd><dt>Lieu</dt><dd>' + esc(e.place) + '</dd><dt>Prix</dt><dd>' + esc(e.price || 'Voir Eventbrite') + '</dd></dl>';
-    h += '<a class="btn block" href="' + esc(e.url) + '" target="_blank" rel="noopener">S\'inscrire sur Eventbrite</a>';
+    h += '<a class="btn block" href="' + esc(e.url) + '" target="_blank" rel="noopener">S\'inscrire sur Eventbrite<span class="sr"> (s\'ouvre dans un nouvel onglet)</span></a>';
     h += '<button class="btn ghost block" data-ics="' + esc(e.id) + '">Ajouter à mon agenda</button>';
-    $('sheetBody').innerHTML = h; $('sheet').hidden = false;
+    $('sheetBody').innerHTML = h; $('sheet').hidden = false; setInert(true);
     var f = $('sheetBody').querySelector('a, button'); if (f) f.focus();
   }
-  function closeSheet() { $('sheet').hidden = true; if (lastFocus && lastFocus.focus) try { lastFocus.focus(); } catch (x) {} }
+  function setInert(on) { [].forEach.call(document.querySelectorAll('.app,.xnav,.skip'), function (n) { if (on) n.setAttribute('inert', ''); else n.removeAttribute('inert'); }); }
+  function closeSheet() { $('sheet').hidden = true; setInert(false); if (lastFocus && lastFocus.focus) try { lastFocus.focus(); } catch (x) {} }
 
   function ics(e) {
     function z(d) { return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); }
@@ -269,7 +287,17 @@ html .xnav button[aria-current="page"] { color: var(--green); }
     if (t.dataset.ics) { var e2 = ev(t.dataset.ics); if (e2) download(e2); }
   });
   document.addEventListener('input', function (x) { if (x.target.id === 'q') { q = x.target.value; render(); } });
-  document.addEventListener('keydown', function (x) { if (x.key === 'Escape' && !$('sheet').hidden) closeSheet(); });
+  document.addEventListener('keydown', function (x) {
+    if ($('sheet').hidden) return;
+    if (x.key === 'Escape') return closeSheet();
+    if (x.key === 'Tab') {
+      var f = $('sheetBody').querySelectorAll('a[href],button:not([disabled])');
+      if (!f.length) return;
+      var a = f[0], z = f[f.length - 1];
+      if (x.shiftKey && document.activeElement === a) { x.preventDefault(); z.focus(); }
+      else if (!x.shiftKey && document.activeElement === z) { x.preventDefault(); a.focus(); }
+    }
+  });
 
   fetch('events.json', { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(setData).catch(function () { failed = true; render(); });
 })();
