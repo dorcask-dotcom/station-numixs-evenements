@@ -12,7 +12,7 @@
   function $(id) { return document.getElementById(id); }
 
   var st = document.createElement('style');
-  st.textContent = '.x-star{color:var(--fg);font-weight:700}.x-star::before{content:"\\2605\\00a0"}.chip[data-x-fav]{border-style:dashed}.chip[data-x-fav][aria-pressed="true"]{border-style:solid}';
+  st.textContent = '.x-star{color:var(--fg);font-weight:700}.x-star::before{content:"\\2605\\00a0";content:"\\2605\\00a0" / ""}.chip[data-x-fav]{border-style:dashed}.chip[data-x-fav][aria-pressed="true"]{border-style:solid}';
   document.head.appendChild(st);
 
   function upcomingFavCount() {
@@ -70,7 +70,7 @@
       ics.insertAdjacentElement('afterend', fav); fav.insertAdjacentElement('afterend', sh);
     }
     var on = isFav(id);
-    fav.textContent = on ? '\u2605 Dans mon programme (retirer)' : '\u2606 Ajouter à mon programme';
+    fav.textContent = (on ? '\u2605 ' : '\u2606 ') + 'Dans mon programme';
     fav.setAttribute('aria-pressed', String(on));
   }
 
